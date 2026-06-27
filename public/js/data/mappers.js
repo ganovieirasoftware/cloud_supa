@@ -32,24 +32,18 @@ export function mapAdministrador(row) {
   };
 }
 
-export function mapEntrada(row, jornadasById) {
-  const j = row.jornada_id ? jornadasById.get(row.jornada_id) : null;
-  const evento =
-    row.evento ||
-    (j ? `${j.jornada} | ${j.dataPT} | ${j.hipodromo}` : "");
+export function mapEntrada(row) {
   const datahora = row.datahora
     ? new Date(row.datahora).toLocaleString("pt-PT")
     : row.data_hora || "";
   return {
     id: row.id,
-    jornadaId: row.jornada_id,
-    pessoaId: row.pessoa_id,
     codigo: row.codigo,
     nome: row.nome,
     funcao: row.funcao,
     operador: row.operador,
     datahora,
-    evento,
+    evento: row.evento || "",
   };
 }
 

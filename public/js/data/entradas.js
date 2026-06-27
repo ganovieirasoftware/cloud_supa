@@ -1,13 +1,13 @@
 import { supabase } from "../supabase.js";
 import { mapEntrada } from "./mappers.js";
 
-export async function fetchEntradas(jornadasById) {
+export async function fetchEntradas() {
   const { data, error } = await supabase
     .from("entradas")
     .select("*")
     .order("datahora", { ascending: false });
   if (error) throw error;
-  return (data || []).map((row) => mapEntrada(row, jornadasById));
+  return (data || []).map(mapEntrada);
 }
 
 export async function insertEntrada(payload) {
@@ -16,11 +16,11 @@ export async function insertEntrada(payload) {
   return data;
 }
 
-export async function findEntrada(jornadaId, codigo) {
+export async function findEntrada(evento, codigo) {
   const { data, error } = await supabase
     .from("entradas")
     .select("*")
-    .eq("jornada_id", jornadaId)
+    .eq("evento", evento)
     .eq("codigo", codigo)
     .maybeSingle();
   if (error) throw error;

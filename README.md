@@ -89,7 +89,7 @@ Suggested order:
 
 ### 4. Optional hardening
 
-- Unique index on `entradas (jornada_id, codigo)` to prevent double check-in at the database level  
+- Unique index on `entradas (evento, codigo)` to prevent double check-in at the database level  
 - Storage bucket for card photos if you move off `foto_cartao` base64  
 
 ---

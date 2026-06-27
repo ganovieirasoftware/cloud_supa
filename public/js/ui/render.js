@@ -15,13 +15,13 @@ export function populateEvents() {
   if (!select) return;
   const atual = select.value;
   select.innerHTML = state.jornadas
-    .map(
-      (j) =>
-        `<option value="${j.id}">${formatEventText(j)}</option>`
-    )
+    .map((j) => {
+      const evento = formatEventText(j);
+      return `<option value="${evento}">${evento}</option>`;
+    })
     .join("");
   const prox = getNextEvent();
-  if (prox) select.value = atual || prox.id;
+  if (prox) select.value = atual || formatEventText(prox);
 }
 
 export function updateNextEvent() {
@@ -61,7 +61,7 @@ export function renderCalendar() {
   tb.innerHTML = state.jornadas
     .map((j) => {
       const evento = formatEventText(j);
-      const entradas = state.entradas.filter((r) => r.evento === evento || r.jornadaId === j.id).length;
+      const entradas = state.entradas.filter((r) => r.evento === evento).length;
       return `<tr><td data-label="Jornada"><b>${j.jornada}</b></td><td data-label="Data">${j.dataPT}</td><td data-label="Hipódromo">${j.hipodromo}</td><td data-label="Entradas"><span class="badge">${entradas}</span></td></tr>`;
     })
     .join("");

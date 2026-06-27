@@ -50,15 +50,14 @@ Gate check-in log (app screen: Registos).
 | Column | Type | Notes |
 |--------|------|-------|
 | id | uuid | Primary key |
-| jornada_id | uuid | FK → jornadas.id |
-| pessoa_id | uuid | FK → pessoas.id |
+| evento | text | Jornada label e.g. `Jornada 1 \| 08-03-2026 \| Hipódromo de …` |
 | codigo | text | QR code scanned |
 | nome | text | Person name at check-in |
 | funcao | text | Role at check-in |
 | operador | text | Staff who validated |
 | datahora | timestamptz | Check-in time |
 
-Recommended in Supabase: unique constraint on `(jornada_id, codigo)`.
+Recommended in Supabase: unique constraint on `(evento, codigo)`.
 
 ## administradores
 

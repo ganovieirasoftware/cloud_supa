@@ -24,10 +24,6 @@ function generateUniqueCode() {
   return c;
 }
 
-function jornadasById() {
-  return new Map(state.jornadas.map((j) => [j.id, j]));
-}
-
 async function loadAllData() {
   if (!isConfigured()) {
     alert("Configura SUPABASE_URL e SUPABASE_ANON_KEY em public/js/config.js");
@@ -36,7 +32,7 @@ async function loadAllData() {
   state.jornadas = await fetchJornadas();
   state.pessoas = await fetchPessoas();
   state.administradores = await fetchAdministradores();
-  state.entradas = await fetchEntradas(jornadasById());
+  state.entradas = await fetchEntradas();
   populateEvents();
   render(showPersonPhoto);
 }
@@ -131,10 +127,9 @@ async function toggleStatus(id) {
 
 async function validateEntry() {
   const codigo = document.getElementById("codigoValidar").value.trim();
-  const jornadaId = document.getElementById("evento").value;
+  const evento = document.getElementById("evento").value;
   const operador = document.getElementById("operador").value.trim() || "Não identificado";
   const out = document.getElementById("resultado");
-  const j = state.jornadas.find((x) => x.id === jornadaId);
   const p = state.pessoas.find((x) => x.codigo.toLowerCase() === codigo.toLowerCase());
 
   if (!p) {
@@ -149,10 +144,9 @@ async function validateEntry() {
   }
 
   try {
-    const usado = await findEntrada(jornadaId, p.codigo);
+    const usado = await findEntrada(evento, p.codigo);
     if (usado) {
-      const evento = j ? formatEventText(j) : "";
-      const mapped = state.entradas.find((r) => r.codigo === p.codigo && r.jornadaId === jornadaId);
+      const mapped = state.entradas.find((r) => r.codigo === p.codigo && r.evento === evento);
       const datahora = mapped?.datahora || (usado.datahora ? new Date(usado.datahora).toLocaleString("pt-PT") : "");
       out.className = "glass result no";
       out.innerHTML = `<h3>Entrada já registada</h3><p><b>${p.nome}</b><br>${p.funcao}<br>Entrada às ${datahora}<br>Validado por ${usado.operador || mapped?.operador || ""}</p>`;
@@ -160,8 +154,7 @@ async function validateEntry() {
     }
 
     await insertEntrada({
-      jornada_id: jornadaId,
-      pessoa_id: p.id,
+      evento,
       codigo: p.codigo,
       nome: p.nome,
       funcao: p.funcao,
@@ -169,11 +162,9 @@ async function validateEntry() {
       datahora: new Date().toISOString(),
     });
 
-    const evento = j ? formatEventText(j) : "";
     const r = {
       datahora: new Date().toLocaleString("pt-PT"),
       evento,
-      jornadaId,
       operador,
       nome: p.nome,
       funcao: p.funcao,
@@ -446,9 +437,7 @@ function exportDatabase() {
     Jornada: j.jornada,
     Data: j.dataPT,
     Hipódromo: j.hipodromo,
-    "Entradas registadas": state.entradas.filter(
-      (r) => r.evento === formatEventText(j) || r.jornadaId === j.id
-    ).length,
+    "Entradas registadas": state.entradas.filter((r) => r.evento === formatEventText(j)).length,
   }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pessoasSheet), "Pessoas");
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(adminsSheet), "Administradores");
@@ -467,9 +456,7 @@ function exportRecords() {
     "Código QR": r.codigo,
   }));
   const resumoPorEvento = state.jornadas.map((j) => {
-    const entradasEvento = state.entradas.filter(
-      (r) => r.evento === formatEventText(j) || r.jornadaId === j.id
-    );
+    const entradasEvento = state.entradas.filter((r) => r.evento === formatEventText(j));
     return {
       Jornada: j.jornada,
       Data: j.dataPT,
