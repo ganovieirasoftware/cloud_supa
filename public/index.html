@@ -9,9 +9,9 @@
 <title>LPTG Access</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
 document.addEventListener("visibilitychange", ()=>{
-  if(!document.hidden) atualizarTudoDoSupabase();
+  if(!document.hidden) refreshAllFromSupabase();
 });
-window.addEventListener("focus", atualizarTudoDoSupabase);
+window.addEventListener("focus", refreshAllFromSupabase);
 
 </script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -739,7 +739,7 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.05
       <div class="section-head"><div><span class="eyebrow">Entrada</span><h2>Validar cartão</h2><p>Introduz o código do QR. O sistema verifica se existe, se está ativo e se já entrou neste evento.</p></div></div>
       <div class="validate-layout">
         <div class="glass scanner">
-          <div class="scan-frame qr-click" onclick="abrirCamaraQR()">
+          <div class="scan-frame qr-click" onclick="openQRCamera()">
             <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
             <div class="scan-line"></div>
             <span>📷 QR</span>
@@ -747,11 +747,11 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.05
           </div>
           <div id="qrReaderBox" class="qr-reader-box">
             <div id="qrReader"></div>
-            <button onclick="fecharCamaraQR()">Fechar câmara</button>
+            <button onclick="closeQRCamera()">Fechar câmara</button>
           </div>
           <label>Código QR</label>
           <input id="codigoValidar" placeholder="Ex: LPTG-2026-ABC123">
-          <button class="primary" onclick="validarEntrada()">Validar entrada</button>
+          <button class="primary" onclick="validateEntry()">Validar entrada</button>
         </div>
         <div id="resultado" class="glass result neutral"><h3>A aguardar leitura</h3><p>O resultado da validação aparece aqui.</p></div>
       </div>
@@ -760,7 +760,7 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.05
     <section id="pessoas" class="page">
       <div class="section-head inline">
         <div><span class="eyebrow">Base de dados</span><h2>Pessoas registadas</h2><p>Gestão de sócios, direção, staff, veterinários, jockeys/drivers, proprietários e treinadores.</p></div>
-        <div class="actions"><button onclick="exportarBD()">Exportar Excel</button><label class="import">Importar BD<input type="file" accept=".json" onchange="importarBD(event)"></label></div>
+        <div class="actions"><button onclick="exportDatabase()">Exportar Excel</button><label class="import">Importar BD<input type="file" accept=".json" onchange="importDatabase(event)"></label></div>
       </div>
       <div class="glass overflow"><table><thead><tr><th>Nome</th><th>Função</th><th>Nº</th><th>Código QR</th><th>QR</th><th>Estado</th><th>Ações</th></tr></thead><tbody id="tabelaPessoas"></tbody></table></div>
     </section>
@@ -784,7 +784,7 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.05
             <option>Sócio/a</option>
           </select>
           <label>Número / Referência</label><input id="numero" placeholder="Ex: SOC-001">
-          <button class="primary" onclick="adicionarPessoa()">Guardar e gerar QR</button>
+          <button class="primary" onclick="addPerson()">Guardar e gerar QR</button>
         </div>
         <div class="glass qr-preview-box">
           <h3>QR gerado</h3>
@@ -793,7 +793,7 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.05
           <code class="qr-code-created" id="novoCodigoPreview">—</code>
           <div class="copy-row">
             <input id="novoCodigoInput" value="" readonly placeholder="Código gerado">
-            <button onclick="copiarNovoCodigo()">Copiar</button>
+            <button onclick="copyNewCode()">Copiar</button>
           </div>
         </div>
       </div>
@@ -806,13 +806,13 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.05
       <div class="card-builder">
         <div class="glass">
           <label>Pessoa</label>
-          <select id="selectFotoPessoa" onchange="mostrarFotoPessoa()"></select>
+          <select id="selectFotoPessoa" onchange="showPersonPhoto()"></select>
 
           <label>Foto do cartão</label>
-          <input id="inputFotoCartao" type="file" accept="image/*" onchange="preverFotoCartao(event)">
+          <input id="inputFotoCartao" type="file" accept="image/*" onchange="previewCardPhoto(event)">
 
-          <button class="primary" onclick="guardarFotoCartao()">Guardar foto nesta pessoa</button>
-          <button style="margin-top:10px;width:100%" onclick="removerFotoCartao()">Remover foto</button>
+          <button class="primary" onclick="saveCardPhoto()">Guardar foto nesta pessoa</button>
+          <button style="margin-top:10px;width:100%" onclick="removeCardPhoto()">Remover foto</button>
         </div>
 
         <div class="glass photo-card-box">
@@ -849,7 +849,7 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.05
             <option>Staff entrada</option>
           </select>
 
-          <button class="primary" onclick="adicionarAdmin()">Adicionar acesso</button>
+          <button class="primary" onclick="addAdmin()">Adicionar acesso</button>
         </div>
 
         <div class="glass overflow">
@@ -862,7 +862,7 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.05
     </section>
 
     <section id="registos" class="page">
-      <div class="section-head inline"><div><span class="eyebrow">Histórico</span><h2>Registos de entrada</h2><p>Lista com hora, evento, pessoa validada e responsável pela validação.</p></div><button onclick="exportarRegistos()">Exportar Excel</button></div>
+      <div class="section-head inline"><div><span class="eyebrow">Histórico</span><h2>Registos de entrada</h2><p>Lista com hora, evento, pessoa validada e responsável pela validação.</p></div><button onclick="exportRecords()">Exportar Excel</button></div>
       <div class="glass overflow"><table><thead><tr><th>Data/Hora</th><th>Evento</th><th>Nome</th><th>Função</th><th>Validado por</th></tr></thead><tbody id="tabelaRegistos"></tbody></table></div>
     </section>
 
@@ -876,7 +876,7 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.05
 
 <div class="qr-modal" id="qrModal">
   <div class="qr-modal-card">
-    <button class="qr-modal-close" onclick="fecharQRCode()">×</button>
+    <button class="qr-modal-close" onclick="closeQRCode()">×</button>
     <span class="eyebrow">Imagem QR</span>
     <h3 id="modalQrNome">—</h3>
     <p id="modalQrFuncao">—</p>
@@ -885,9 +885,9 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);letter-spacing:.05
     </div>
     <code id="modalQrCodigo">—</code>
     <div class="modal-actions">
-      <button onclick="copiarCodigoModal()">Copiar código</button>
-      <button onclick="copiarImagemQR()">Copiar imagem QR</button>
-      <button onclick="descarregarImagemQR()">Descarregar PNG</button>
+      <button onclick="copyModalCode()">Copiar código</button>
+      <button onclick="copyQRImage()">Copiar imagem QR</button>
+      <button onclick="downloadQRImage()">Descarregar PNG</button>
     </div>
   </div>
 </div>
@@ -943,7 +943,7 @@ function login(){
   render();
 }
 
-function verificarSessao(){
+function checkSession(){
   if(sessao && admins.some(a=>a.email===sessao.email && a.ativo)){
     document.getElementById("loginGate").classList.add("hide");
     setTimeout(()=>{const op=document.getElementById("operador"); if(op)op.value=sessao.nome;},0);
@@ -960,7 +960,7 @@ function logout(){
   document.getElementById("loginGate").classList.remove("hide");
 }
 
-function adicionarAdmin(){
+function addAdmin(){
   const nome=document.getElementById("adminNome").value.trim();
   const email=document.getElementById("adminEmail").value.trim().toLowerCase();
   const senha=document.getElementById("adminSenha").value;
@@ -975,7 +975,7 @@ function adicionarAdmin(){
   render();
 }
 
-function alternarAdmin(id){
+function toggleAdmin(id){
   const a=admins.find(x=>x.id===id);
   if(!a)return;
   if(sessao && a.email===sessao.email && a.ativo){alert("Não podes desativar o teu próprio acesso enquanto estás ligado.");return}
@@ -984,7 +984,7 @@ function alternarAdmin(id){
   render();
 }
 
-function apagarAdmin(id){
+function deleteAdmin(id){
   const a=admins.find(x=>x.id===id);
   if(!a)return;
   if(sessao && a.email===sessao.email){alert("Não podes apagar o teu próprio acesso enquanto estás ligado.");return}
@@ -996,7 +996,7 @@ function apagarAdmin(id){
 }
 
 
-function mapPessoaSupabase(p){
+function mapSupabasePerson(p){
   return {
     id:p.id,
     nome:p.nome,
@@ -1008,7 +1008,7 @@ function mapPessoaSupabase(p){
   };
 }
 
-async function carregarPessoasSempreDoSupabase(){
+async function loadPeopleFromSupabase(){
   if(!USAR_SUPABASE){
     load();
     render();
@@ -1027,7 +1027,7 @@ async function carregarPessoasSempreDoSupabase(){
       return;
     }
 
-    pessoas = (data || []).map(mapPessoaSupabase);
+    pessoas = (data || []).map(mapSupabasePerson);
 
     // Limpa lixo antigo local para não mostrar dados diferentes entre PC e telemóvel.
     localStorage.removeItem("lptg_pessoas");
@@ -1042,13 +1042,13 @@ async function carregarPessoasSempreDoSupabase(){
   }
 }
 
-async function atualizarTudoDoSupabase(){
-  await carregarPessoasSempreDoSupabase();
+async function refreshAllFromSupabase(){
+  await loadPeopleFromSupabase();
 }
 
 function uid(){return Math.random().toString(36).slice(2,10).toUpperCase()}
 
-function gerarProximoCodigo(){
+function generateNextCode(){
   const ultimo = pessoas
     .map(p=>{
       const m = String(p.codigo||"").match(/^LPTG26-(\d+)$/);
@@ -1060,32 +1060,32 @@ function gerarProximoCodigo(){
 }
 
 
-function codigoUnico(){let c; do{c="LPTG-2026-"+uid()+uid().slice(0,2)}while(pessoas?.some(p=>p.codigo===c)); return c}
+function generateUniqueCode(){let c; do{c="LPTG-2026-"+uid()+uid().slice(0,2)}while(pessoas?.some(p=>p.codigo===c)); return c}
 function save(){localStorage.setItem("lptg_pessoas",JSON.stringify(pessoas));localStorage.setItem("lptg_registos",JSON.stringify(registos))}
-function eventoTexto(j){return `${j.jornada} | ${j.dataPT} | ${j.hipodromo}`}
-function proximaJornada(){const hoje=new Date();hoje.setHours(0,0,0,0);return jornadas.find(j=>new Date(j.data+"T00:00:00")>=hoje)||jornadas[jornadas.length-1]}
-function preencherEventos(){const select=document.getElementById("evento"); if(!select)return; const atual=select.value; select.innerHTML=jornadas.map(j=>`<option value="${eventoTexto(j)}">${eventoTexto(j)}</option>`).join(""); const prox=proximaJornada(); select.value=atual||eventoTexto(prox)}
-function atualizarProximaJornada(){const el=document.getElementById("nextEventTitle"); if(!el)return; const j=proximaJornada(); const hoje=new Date(); hoje.setHours(0,0,0,0); const d=new Date(j.data+"T00:00:00"); const dias=Math.max(0,Math.ceil((d-hoje)/86400000)); el.textContent=`${j.jornada} · ${j.hipodromo.replace("Hipódromo de ","").replace("Hipódromo da ","")}`; document.getElementById("nextEventDetails").textContent=`${j.dataPT} · ${j.hipodromo}`; document.getElementById("nextEventDays").textContent=dias}
+function formatEventText(j){return `${j.jornada} | ${j.dataPT} | ${j.hipodromo}`}
+function getNextEvent(){const hoje=new Date();hoje.setHours(0,0,0,0);return jornadas.find(j=>new Date(j.data+"T00:00:00")>=hoje)||jornadas[jornadas.length-1]}
+function populateEvents(){const select=document.getElementById("evento"); if(!select)return; const atual=select.value; select.innerHTML=jornadas.map(j=>`<option value="${formatEventText(j)}">${formatEventText(j)}</option>`).join(""); const prox=getNextEvent(); select.value=atual||formatEventText(prox)}
+function updateNextEvent(){const el=document.getElementById("nextEventTitle"); if(!el)return; const j=getNextEvent(); const hoje=new Date(); hoje.setHours(0,0,0,0); const d=new Date(j.data+"T00:00:00"); const dias=Math.max(0,Math.ceil((d-hoje)/86400000)); el.textContent=`${j.jornada} · ${j.hipodromo.replace("Hipódromo de ","").replace("Hipódromo da ","")}`; document.getElementById("nextEventDetails").textContent=`${j.dataPT} · ${j.hipodromo}`; document.getElementById("nextEventDays").textContent=dias}
 function screen(id,btn){document.querySelectorAll(".page").forEach(p=>p.classList.remove("show"));document.getElementById(id).classList.add("show");document.querySelectorAll(".nav").forEach(b=>b.classList.remove("active"));btn.classList.add("active");render()}
-function adicionarPessoa(){
+function addPerson(){
   const nome=document.getElementById("nome").value.trim();
   const funcao=document.getElementById("funcao").value;
   const numero=document.getElementById("numero").value.trim();
   if(!nome){alert("Falta o nome.");return}
-  const novaPessoa={id:uid(),nome,funcao,numero:numero||"—",codigo:codigoUnico(),ativo:true};
+  const novaPessoa={id:uid(),nome,funcao,numero:numero||"—",codigo:generateUniqueCode(),ativo:true};
   pessoas.push(novaPessoa);
   document.getElementById("nome").value="";
   document.getElementById("numero").value="";
   save();
   render();
-  mostrarNovoQR(novaPessoa);
+  showNewQRCode(novaPessoa);
 }
-function apagarPessoa(id){if(confirm("Apagar esta pessoa?")){pessoas=pessoas.filter(p=>p.id!==id);save();render()}}
-function alternarEstado(id){const p=pessoas.find(x=>x.id===id);p.ativo=!p.ativo;save();render()}
+function deletePerson(id){if(confirm("Apagar esta pessoa?")){pessoas=pessoas.filter(p=>p.id!==id);save();render()}}
+function toggleStatus(id){const p=pessoas.find(x=>x.id===id);p.ativo=!p.ativo;save();render()}
 let qrScanner=null;
 let qrScannerAtivo=false;
 
-async function abrirCamaraQR(){
+async function openQRCamera(){
   const box=document.getElementById("qrReaderBox");
   const reader=document.getElementById("qrReader");
   if(!box || !reader)return;
@@ -1103,8 +1103,8 @@ async function abrirCamaraQR(){
       { fps: 10, qrbox: { width: 250, height: 250 } },
       (decodedText) => {
         document.getElementById("codigoValidar").value = decodedText;
-        fecharCamaraQR();
-        validarEntrada();
+        closeQRCamera();
+        validateEntry();
       },
       () => {}
     );
@@ -1114,7 +1114,7 @@ async function abrirCamaraQR(){
   }
 }
 
-async function fecharCamaraQR(){
+async function closeQRCamera(){
   const box=document.getElementById("qrReaderBox");
   if(qrScanner && qrScannerAtivo){
     try{
@@ -1127,9 +1127,9 @@ async function fecharCamaraQR(){
   if(box)box.classList.remove("show");
 }
 
-function validarEntrada(){const codigo=document.getElementById("codigoValidar").value.trim(); const evento=document.getElementById("evento").value; const operador=document.getElementById("operador").value.trim()||"Não identificado"; const out=document.getElementById("resultado"); const p=pessoas.find(x=>x.codigo.toLowerCase()===codigo.toLowerCase()); if(!p){out.className="glass result no";out.innerHTML="<h3>Cartão inválido</h3><p>Este código não existe na base de dados.</p>";return} if(!p.ativo){out.className="glass result no";out.innerHTML=`<h3>Cartão inativo</h3><p>${p.nome} está inativo. Não permitir entrada.</p>`;return} const usado=registos.find(r=>r.codigo===p.codigo&&r.evento===evento); if(usado){out.className="glass result no";out.innerHTML=`<h3>Entrada já registada</h3><p><b>${p.nome}</b><br>${p.funcao}<br>Entrada às ${usado.datahora}<br>Validado por ${usado.operador}</p>`;return} const r={datahora:new Date().toLocaleString("pt-PT"),evento,operador,nome:p.nome,funcao:p.funcao,codigo:p.codigo}; registos.unshift(r); save(); render(); out.className="glass result ok"; out.innerHTML=`<h3>Entrada autorizada</h3><p><b>${p.nome}</b><br>${p.funcao}<br>${p.numero}<br>Validado por ${operador}</p>`}
-function gerarCartao(){const sel=document.getElementById("selectCartao"); if(!sel||!pessoas.length)return; const p=pessoas[Number(sel.value)||0]; document.getElementById("cartaoNome").textContent=p.nome; document.getElementById("cartaoFuncao").textContent=p.funcao+" | "+p.numero; document.getElementById("cartaoCodigo").textContent=p.codigo; document.getElementById("qrcode").innerHTML=""; if(window.QRCode){new QRCode(document.getElementById("qrcode"),{text:p.codigo,width:172,height:172})} else {document.getElementById("qrcode").innerHTML="<b>QR</b><br>"+p.codigo}}
-function mostrarNovoQR(p){
+function validateEntry(){const codigo=document.getElementById("codigoValidar").value.trim(); const evento=document.getElementById("evento").value; const operador=document.getElementById("operador").value.trim()||"Não identificado"; const out=document.getElementById("resultado"); const p=pessoas.find(x=>x.codigo.toLowerCase()===codigo.toLowerCase()); if(!p){out.className="glass result no";out.innerHTML="<h3>Cartão inválido</h3><p>Este código não existe na base de dados.</p>";return} if(!p.ativo){out.className="glass result no";out.innerHTML=`<h3>Cartão inativo</h3><p>${p.nome} está inativo. Não permitir entrada.</p>`;return} const usado=registos.find(r=>r.codigo===p.codigo&&r.evento===evento); if(usado){out.className="glass result no";out.innerHTML=`<h3>Entrada já registada</h3><p><b>${p.nome}</b><br>${p.funcao}<br>Entrada às ${usado.datahora}<br>Validado por ${usado.operador}</p>`;return} const r={datahora:new Date().toLocaleString("pt-PT"),evento,operador,nome:p.nome,funcao:p.funcao,codigo:p.codigo}; registos.unshift(r); save(); render(); out.className="glass result ok"; out.innerHTML=`<h3>Entrada autorizada</h3><p><b>${p.nome}</b><br>${p.funcao}<br>${p.numero}<br>Validado por ${operador}</p>`}
+function generateCard(){const sel=document.getElementById("selectCartao"); if(!sel||!pessoas.length)return; const p=pessoas[Number(sel.value)||0]; document.getElementById("cartaoNome").textContent=p.nome; document.getElementById("cartaoFuncao").textContent=p.funcao+" | "+p.numero; document.getElementById("cartaoCodigo").textContent=p.codigo; document.getElementById("qrcode").innerHTML=""; if(window.QRCode){new QRCode(document.getElementById("qrcode"),{text:p.codigo,width:172,height:172})} else {document.getElementById("qrcode").innerHTML="<b>QR</b><br>"+p.codigo}}
+function showNewQRCode(p){
   const qrBox=document.getElementById("novoQrPreview");
   const codeText=document.getElementById("novoCodigoPreview");
   const codeInput=document.getElementById("novoCodigoInput");
@@ -1144,7 +1144,7 @@ function mostrarNovoQR(p){
   codeInput.value=p.codigo;
 }
 
-function copiarNovoCodigo(){
+function copyNewCode(){
   const input=document.getElementById("novoCodigoInput");
   if(!input || !input.value){alert("Ainda não existe código QR gerado.");return}
   navigator.clipboard.writeText(input.value).then(()=>alert("Código copiado: "+input.value)).catch(()=>{
@@ -1156,7 +1156,7 @@ function copiarNovoCodigo(){
 
 let fotoTemporaria=null;
 
-function preverFotoCartao(event){
+function previewCardPhoto(event){
   const file=event.target.files[0];
   if(!file)return;
   const reader=new FileReader();
@@ -1168,7 +1168,7 @@ function preverFotoCartao(event){
   reader.readAsDataURL(file);
 }
 
-function mostrarFotoPessoa(){
+function showPersonPhoto(){
   const sel=document.getElementById("selectFotoPessoa");
   const box=document.getElementById("fotoPreview");
   const info=document.getElementById("fotoPessoaInfo");
@@ -1185,7 +1185,7 @@ function mostrarFotoPessoa(){
   info.textContent=`${p.nome} · ${p.funcao} · ${p.codigo}`;
 }
 
-function guardarFotoCartao(){
+function saveCardPhoto(){
   const sel=document.getElementById("selectFotoPessoa");
   if(!sel || !pessoas.length)return;
   if(!fotoTemporaria){alert("Tens de escolher uma foto primeiro.");return}
@@ -1196,7 +1196,7 @@ function guardarFotoCartao(){
   alert("Foto associada a: "+p.nome);
 }
 
-function removerFotoCartao(){
+function removeCardPhoto(){
   const sel=document.getElementById("selectFotoPessoa");
   if(!sel || !pessoas.length)return;
   const p=pessoas[Number(sel.value)||0];
@@ -1211,7 +1211,7 @@ function removerFotoCartao(){
 
 let qrPessoaAtual=null;
 
-function verQRCode(id){
+function viewQRCode(id){
   const p=pessoas.find(x=>x.id===id);
   if(!p)return;
   qrPessoaAtual=p;
@@ -1229,18 +1229,18 @@ function verQRCode(id){
   modal.classList.add("show");
 }
 
-function fecharQRCode(){
+function closeQRCode(){
   document.getElementById("qrModal").classList.remove("show");
 }
 
-function copiarCodigoModal(){
+function copyModalCode(){
   if(!qrPessoaAtual){return}
   navigator.clipboard.writeText(qrPessoaAtual.codigo).then(()=>alert("Código copiado: "+qrPessoaAtual.codigo)).catch(()=>{
     alert("Não consegui copiar automaticamente. Seleciona o código manualmente.");
   });
 }
 
-function qrCanvasParaBlob(){
+function qrCanvasToBlob(){
   return new Promise((resolve,reject)=>{
     const box=document.getElementById("modalQrImagem");
     const canvas=box.querySelector("canvas");
@@ -1257,9 +1257,9 @@ function qrCanvasParaBlob(){
   });
 }
 
-async function copiarImagemQR(){
+async function copyQRImage(){
   try{
-    const blob=await qrCanvasParaBlob();
+    const blob=await qrCanvasToBlob();
     await navigator.clipboard.write([new ClipboardItem({"image/png":blob})]);
     alert("Imagem QR copiada. Agora podes colar no cartão.");
   }catch(e){
@@ -1267,10 +1267,10 @@ async function copiarImagemQR(){
   }
 }
 
-async function descarregarImagemQR(){
+async function downloadQRImage(){
   if(!qrPessoaAtual)return;
   try{
-    const blob=await qrCanvasParaBlob();
+    const blob=await qrCanvasToBlob();
     const a=document.createElement("a");
     a.href=URL.createObjectURL(blob);
     a.download=qrPessoaAtual.codigo+"_qr.png";
@@ -1280,7 +1280,7 @@ async function descarregarImagemQR(){
   }
 }
 
-function exportarBD(){
+function exportDatabase(){
   const wb = XLSX.utils.book_new();
 
   const pessoasSheet = pessoas.map(p => ({
@@ -1302,7 +1302,7 @@ function exportarBD(){
     "Jornada": j.jornada,
     "Data": j.dataPT,
     "Hipódromo": j.hipodromo,
-    "Entradas registadas": registos.filter(r => r.evento === eventoTexto(j)).length
+    "Entradas registadas": registos.filter(r => r.evento === formatEventText(j)).length
   }));
 
   const wsPessoas = XLSX.utils.json_to_sheet(pessoasSheet);
@@ -1319,8 +1319,8 @@ function exportarBD(){
 
   XLSX.writeFile(wb, "base_dados_lptg.xlsx");
 }
-function importarBD(e){const f=e.target.files[0]; if(!f)return; const reader=new FileReader(); reader.onload=()=>{try{pessoas=JSON.parse(reader.result);save();render();alert("Base de dados importada.")}catch{alert("Ficheiro inválido.")}}; reader.readAsText(f)}
-function exportarRegistos(){
+function importDatabase(e){const f=e.target.files[0]; if(!f)return; const reader=new FileReader(); reader.onload=()=>{try{pessoas=JSON.parse(reader.result);save();render();alert("Base de dados importada.")}catch{alert("Ficheiro inválido.")}}; reader.readAsText(f)}
+function exportRecords(){
   const wb = XLSX.utils.book_new();
 
   const linhas = registos.map(r => ({
@@ -1333,7 +1333,7 @@ function exportarRegistos(){
   }));
 
   const resumoPorEvento = jornadas.map(j => {
-    const evento = eventoTexto(j);
+    const evento = formatEventText(j);
     const entradasEvento = registos.filter(r => r.evento === evento);
     return {
       "Jornada": j.jornada,
@@ -1367,19 +1367,19 @@ function renderAdmins(){
     <td data-label="Email">${a.email}</td>
     <td data-label="Tipo">${a.tipo}</td>
     <td data-label="Estado"><span class="badge ${a.ativo?'':'off'}">${a.ativo?'Ativo':'Inativo'}</span></td>
-    <td data-label="Ações"><div class="actions-cell"><button onclick="alternarAdmin('${a.id}')">${a.ativo?'Desativar':'Ativar'}</button><button onclick="apagarAdmin('${a.id}')">Apagar</button></div></td>
+    <td data-label="Ações"><div class="actions-cell"><button onclick="toggleAdmin('${a.id}')">${a.ativo?'Desativar':'Ativar'}</button><button onclick="deleteAdmin('${a.id}')">Apagar</button></div></td>
   </tr>`).join("") || "<tr><td colspan='5'>Sem acessos criados.</td></tr>";
 }
 
-function renderCalendario(){const tb=document.getElementById("tabelaCalendario"); if(!tb)return; tb.innerHTML=jornadas.map(j=>{const evento=eventoTexto(j); const entradas=registos.filter(r=>r.evento===evento).length; return `<tr><td data-label="Jornada"><b>${j.jornada}</b></td><td data-label="Data">${j.dataPT}</td><td data-label="Hipódromo">${j.hipodromo}</td><td data-label="Entradas"><span class="badge">${entradas}</span></td></tr>`}).join("")}
-function render(){const tp=document.getElementById("tabelaPessoas"); if(tp){tp.innerHTML=pessoas.map(p=>`<tr><td data-label="Nome"><b>${p.nome}</b></td><td data-label="Função">${p.funcao}</td><td data-label="Nº">${p.numero}</td><td data-label="Código QR">${p.codigo}</td><td data-label="QR"><button onclick="verQRCode('${p.id}')">Ver</button></td><td data-label="Estado"><span class="badge ${p.ativo?'':'off'}">${p.ativo?'Ativo':'Inativo'}</span></td><td data-label="Ações"><div class="actions-cell"><button onclick="alternarEstado('${p.id}')">${p.ativo?'Desativar':'Ativar'}</button><button onclick="apagarPessoa('${p.id}')">Apagar</button></div></td></tr>`).join("")||"<tr><td colspan='6'>Sem pessoas.</td></tr>"} const tr=document.getElementById("tabelaRegistos"); if(tr){tr.innerHTML=registos.map(r=>`<tr><td data-label="Data/Hora">${r.datahora}</td><td data-label="Evento">${r.evento}</td><td data-label="Nome"><b>${r.nome}</b></td><td data-label="Função">${r.funcao}</td><td data-label="Validado por">${r.operador}</td></tr>`).join("")||"<tr><td colspan='5'>Sem registos.</td></tr>"} const selFoto=document.getElementById("selectFotoPessoa");
+function renderCalendar(){const tb=document.getElementById("tabelaCalendario"); if(!tb)return; tb.innerHTML=jornadas.map(j=>{const evento=formatEventText(j); const entradas=registos.filter(r=>r.evento===evento).length; return `<tr><td data-label="Jornada"><b>${j.jornada}</b></td><td data-label="Data">${j.dataPT}</td><td data-label="Hipódromo">${j.hipodromo}</td><td data-label="Entradas"><span class="badge">${entradas}</span></td></tr>`}).join("")}
+function render(){const tp=document.getElementById("tabelaPessoas"); if(tp){tp.innerHTML=pessoas.map(p=>`<tr><td data-label="Nome"><b>${p.nome}</b></td><td data-label="Função">${p.funcao}</td><td data-label="Nº">${p.numero}</td><td data-label="Código QR">${p.codigo}</td><td data-label="QR"><button onclick="viewQRCode('${p.id}')">Ver</button></td><td data-label="Estado"><span class="badge ${p.ativo?'':'off'}">${p.ativo?'Ativo':'Inativo'}</span></td><td data-label="Ações"><div class="actions-cell"><button onclick="toggleStatus('${p.id}')">${p.ativo?'Desativar':'Ativar'}</button><button onclick="deletePerson('${p.id}')">Apagar</button></div></td></tr>`).join("")||"<tr><td colspan='6'>Sem pessoas.</td></tr>"} const tr=document.getElementById("tabelaRegistos"); if(tr){tr.innerHTML=registos.map(r=>`<tr><td data-label="Data/Hora">${r.datahora}</td><td data-label="Evento">${r.evento}</td><td data-label="Nome"><b>${r.nome}</b></td><td data-label="Função">${r.funcao}</td><td data-label="Validado por">${r.operador}</td></tr>`).join("")||"<tr><td colspan='5'>Sem registos.</td></tr>"} const selFoto=document.getElementById("selectFotoPessoa");
  if(selFoto){
    const oldFoto=selFoto.value;
    selFoto.innerHTML=pessoas.map((p,i)=>`<option value="${i}">${p.nome} - ${p.funcao}</option>`).join("");
    selFoto.value=oldFoto||0;
-   mostrarFotoPessoa();
- } const hoje=new Date().toLocaleDateString("pt-PT"); if(document.getElementById("statPessoas")){document.getElementById("statPessoas").textContent=pessoas.length; document.getElementById("statAtivos").textContent=pessoas.filter(p=>p.ativo).length; document.getElementById("statEntradas").textContent=registos.length; document.getElementById("statHoje").textContent=registos.filter(r=>String(r.datahora).startsWith(hoje)).length} renderAdmins(); renderCalendario(); atualizarProximaJornada()}
-localStorage.setItem("lptg_admins",JSON.stringify(admins)); preencherEventos(); verificarSessao(); render(); atualizarProximaJornada(); carregarDadosSupabase();
+   showPersonPhoto();
+ } const hoje=new Date().toLocaleDateString("pt-PT"); if(document.getElementById("statPessoas")){document.getElementById("statPessoas").textContent=pessoas.length; document.getElementById("statAtivos").textContent=pessoas.filter(p=>p.ativo).length; document.getElementById("statEntradas").textContent=registos.length; document.getElementById("statHoje").textContent=registos.filter(r=>String(r.datahora).startsWith(hoje)).length} renderAdmins(); renderCalendar(); updateNextEvent()}
+localStorage.setItem("lptg_admins",JSON.stringify(admins)); populateEvents(); checkSession(); render(); updateNextEvent(); loadSupabaseData();
 </script>
 </body>
 </html>
